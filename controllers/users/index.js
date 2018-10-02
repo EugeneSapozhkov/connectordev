@@ -9,7 +9,7 @@ module.exports = (models) => {
 
   api.post("/register", register(models));
   api.post("/login", login(models));
-  api.get("/me", passport.authenticate('jwt', {session: false}), get());
+  api.get("/me", passport.authenticate('jwt', { session: false }), get());
 
   return api;
 };
