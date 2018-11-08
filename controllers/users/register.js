@@ -1,11 +1,20 @@
 const gravatar = require("gravatar");
 const bcrypt = require("bcryptjs");
 
+const validateRegisterInput = require('../../validation/register');
+
 const register = ({ User }) => async (req, res, next) => {
+  const { errors, isValid } = validateRegisterInput(req.body);
+
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
   const user = await User.findOne({ email: req.body.email });
 
   if (user) {
-    return res.status(400).json({email: "Email already exists"})
+    errors.email = 'Email already exists';
+    return res.status(400).json(errors);
   }
 
   const avatar = gravatar.url(req.body.email, {
