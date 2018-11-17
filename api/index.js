@@ -1,8 +1,10 @@
 const express = require("express");
+const auth = require("../controllers/auth");
 const users = require("../controllers/users");
 const home = require("../controllers/home");
-const User = require("../models/User");
 
+// Models
+const User = require("../models/User");
 const models = {
   User,
 };
@@ -10,8 +12,9 @@ const models = {
 const routersInit = () => {
   const router = express();
 
-  router.use('/users', users(models));
   router.use('/home', home());
+  router.use('/auth', auth(models));
+  router.use('/users', users(models));
 
   return router;
 };

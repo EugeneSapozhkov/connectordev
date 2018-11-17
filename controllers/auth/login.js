@@ -1,18 +1,23 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { secretOrKey } = require("../../config");
+const _ = require("lodash");
 
 const login = ({ User }) => async (req, res, next) => {
   const { email, password } = req.body;
+
+  if (_.isEmpty(email) || _.isEmpty(password)) {
+      return res.status(400).json({ message: "Incorrect data" })
+  }
 
   // Find use by email
   const user = await User.findOne({ email });
 
   if (!user) {
-    return res.status(404).json({ email: "User not found" })
+    return res.status(404).json({ message: "User not found" })
   }
 
   const match = await bcrypt.compare(password, user.password);
+
 
   if (match) {
 
@@ -20,22 +25,21 @@ const login = ({ User }) => async (req, res, next) => {
     const payload = {
       id: user.id,
       name: user.name,
-      avatar: user.avatar
     };
 
     // Sign Token
     jwt.sign(
       payload,
-      secretOrKey,
+      process.env.SECRET,
       { expiresIn: 3600 },
       (err, token) => {
         res.json({
-          success: true,
-          token: "Bearer " + token,
+          status: 200,
+          token,
         })
       });
   } else {
-    return res.status(400).json({ password: "Password incorrect" })
+    return res.status(400).json({ message: "Password incorrect" })
   }
 };
 

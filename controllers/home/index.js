@@ -1,5 +1,4 @@
 const express = require("express");
-const passport = require("passport");
 
 module.exports = () => {
   const api = express.Router();

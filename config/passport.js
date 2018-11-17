@@ -1,26 +1,28 @@
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
-const { secretOrKey } = require("../config");
 const User = require("../models/User");
 
 const opts = {};
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-opts.secretOrKey = secretOrKey;
+opts.secretOrKey = process.env.SECRET;
 
-module.exports = passport => {
-  passport.use(
-    new JwtStrategy(opts, (jwt_payload, done) => {
+module.exports = passport => (
+    passport.use(new JwtStrategy(opts, function (payload, done) {
+        User.findOne({ id: payload.sub } , (err, user) => {
 
-      User.findById(jwt_payload.id)
-        .then(user => {
+            console.log(payload);
 
-          if (user) {
-            return done(null, user);
-          }
-
-          return done(null, false);
-        })
-        .catch(err => console.log(err));
-    })
-  )
-};
+            if (err) {
+                console.log('Error Unauthorized! - 1');
+                return done(err, false);
+            }
+            if (user) {
+                console.log('Error Unauthorized! - 2');
+                return done(null, user);
+            } else {
+                console.log('Error Unauthorized! - 3');
+                return done(null, false);
+            }
+        });
+    }))
+);
